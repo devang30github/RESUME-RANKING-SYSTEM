@@ -65,21 +65,42 @@ def extract_text_from_file(file):
         raise ValueError(f"Unsupported file type: {file_extension}")
 
 def summarize_job_description_with_groq(job_description):
-    prompt = f"Summarize the following job description..."
+    prompt = f"""
+    Summarize the following job description into these sections:
+    - Key Required Skills (specific tools, languages, and frameworks)
+    - Years of Experience Required
+    - Responsibilities
+    - Educational Background
+    - Certifications (if needed)
+    - Job Location and Remote Work Options
+    
+    Job Description: {job_description}
+    """
     try:
         response = summarizer_model.invoke(input=prompt)
         return response.content.strip() if response and response.content.strip() else job_description
     except Exception as e:
-        st.error(f"Error generating job description summary: {str(e)}")
+        print(f"Error generating job description summary: {str(e)}")
         return job_description
 
+# Summarize resume using Groq
 def summarize_resume_with_groq(resume_text):
-    prompt = f"Summarize the following resume..."
+    prompt = f"""
+    Summarize the following resume into these sections:
+    - Key Technical Skills (specific tools, languages, and frameworks)
+    - Work Experience (total years, responsibilities, and impact)
+    - Educational Background
+    - Certifications (related to the job)
+    - Relevant Projects or Contributions
+    
+
+    resume : {resume_text}
+    """
     try:
         response = summarizer_model.invoke(input=prompt)
         return response.content.strip() if response and response.content.strip() else resume_text
     except Exception as e:
-        st.error(f"Error generating summary: {str(e)}")
+        print(f"Error generating summary: {str(e)}")
         return resume_text
 
 def batch_get_embeddings(texts, transformer_model):
