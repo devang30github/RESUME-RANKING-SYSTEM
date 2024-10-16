@@ -13,7 +13,9 @@ from dotenv import load_dotenv
 import string
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
+from concurrent.futures import ThreadPoolExecutor
 
+# Download NLTK Data
 nltk.download('punkt')
 nltk.download('stopwords')
 
@@ -68,7 +70,7 @@ def summarize_job_description_with_groq(job_description):
         response = summarizer_model.invoke(input=prompt)
         return response.content.strip() if response and response.content.strip() else job_description
     except Exception as e:
-        print(f"Error generating job description summary: {str(e)}")
+        st.error(f"Error generating job description summary: {str(e)}")
         return job_description
 
 def summarize_resume_with_groq(resume_text):
@@ -77,23 +79,21 @@ def summarize_resume_with_groq(resume_text):
         response = summarizer_model.invoke(input=prompt)
         return response.content.strip() if response and response.content.strip() else resume_text
     except Exception as e:
-        print(f"Error generating summary: {str(e)}")
+        st.error(f"Error generating summary: {str(e)}")
         return resume_text
 
 def batch_get_embeddings(texts, transformer_model):
     return transformer_model.encode(texts, convert_to_tensor=True, batch_size=8)
-
-def parallel_preprocessing(resume_texts):
-    from multiprocessing import Pool
-    with Pool() as pool:
-        return pool.map(advanced_preprocessing, resume_texts)
 
 def rank_resumes_separately(resume_texts, job_description, transformer_model):
     summarized_job_description = advanced_preprocessing(summarize_job_description_with_groq(job_description))
     job_desc_embs = batch_get_embeddings([summarized_job_description], transformer_model)
     lemmatized_job_description = advanced_preprocessing(job_description)
 
-    resume_summaries = parallel_preprocessing([summarize_resume_with_groq(resume_text) for resume_text, _ in resume_texts])
+    # Process resumes sequentially or in parallel using ThreadPoolExecutor
+    with ThreadPoolExecutor() as executor:
+        resume_summaries = list(executor.map(summarize_resume_with_groq, [resume_text for resume_text, _ in resume_texts]))
+
     resume_embeddings = batch_get_embeddings(resume_summaries, transformer_model)
 
     scores = []
@@ -124,8 +124,9 @@ resumes = st.file_uploader("Upload one or more resumes (PDF, DOCX)", accept_mult
 
 if st.button("Submit"):
     if job_description and resumes:
-        resume_texts = [(extract_text_from_file(resume), resume.name) for resume in resumes]
-        ranked_resumes = rank_resumes_separately(resume_texts, job_description, sentence_transformer_model)
+        with st.spinner("Processing..."):
+            resume_texts = [(extract_text_from_file(resume), resume.name) for resume in resumes]
+            ranked_resumes = rank_resumes_separately(resume_texts, job_description, sentence_transformer_model)
 
         st.subheader("Ranked Resumes")
         for file_name, score in ranked_resumes:
@@ -219,7 +220,4 @@ st.markdown('''
             margin-top: 20px;
         }
     </style>
-          
 ''', unsafe_allow_html=True)
-
-
