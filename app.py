@@ -261,6 +261,8 @@ if st.button("Submit"):
 
             resume_texts = [(extract_text_from_file(resume), resume.name) for resume in resumes]
             ranked_resumes = rank_resumes_separately(resume_texts, job_description, sentence_transformer_model)
+            progress_bar.progress(70)
+            status_text.text("Ranking resumes based on job description...")
 
         st.subheader("Ranked Resumes")
         for file_name, score in ranked_resumes:
@@ -271,6 +273,8 @@ if st.button("Submit"):
             </div>
             """, unsafe_allow_html=True)
             #**{file_name}**: {score:.2f}%")
+        progress_bar.progress(100)
+        status_text.text("Processing completed.")
     else:
         st.error("Please provide both a job description and upload resumes.")
 
