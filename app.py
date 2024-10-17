@@ -133,7 +133,7 @@ def rank_resumes_separately(resume_texts, job_description, transformer_model):
         lemmatized_resume = advanced_preprocessing(resume_text)
         vectors_resume = vectorizer.transform([ lemmatized_resume])
         similarity_score_keywords = cosine_similarity(vectors_job, vectors_resume)
-        keyword_boost = similarity_score_keywords[0][0] * 0.4
+        keyword_boost = similarity_score_keywords[0][0] * 0.3
         
         
 
