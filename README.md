@@ -1,33 +1,35 @@
-# RESUME-RANKING-SYSTEM
+# Resume Ranking System
 
-Overview
-This project is a Resume Ranking System that matches and ranks resumes based on a given job description. It leverages Natural Language Processing (NLP), cosine similarity, and embeddings to compute the similarity between resumes and the job description, providing a match score. This allows recruiters to efficiently screen candidates by identifying resumes that closely match job requirements.
+## Overview
+
+The **Resume Ranking System** is an AI-driven tool designed to streamline the resume screening process for recruiters by matching and ranking resumes against a given job description. This tool leverages Natural Language Processing (NLP), embeddings, and cosine similarity to compute how well a resume aligns with the job requirements, returning a match score for each resume.
 
 The system uses:
 
-Sentence Embeddings for text vectorization using the SentenceTransformer model.
-CountVectorizer with N-grams to match keywords between the job description and resumes.
-Cosine Similarity to compute similarity scores based on embeddings and keywords.
-Flask API to allow uploading of resumes and job descriptions for analysis.
+- **Sentence Embeddings** for text vectorization using `SentenceTransformer`.
+- **CountVectorizer with N-grams** for keyword matching between the job description and resumes.
+- **Cosine Similarity** to compute similarity scores.
+- **Flask API** to provide a user-friendly interface for uploading resumes and job descriptions.
 
-Features
-Text Extraction: Extracts text from PDF, DOC, and DOCX files.
-NLP Preprocessing: Includes lemmatization, stopword removal, and advanced text preprocessing to clean up and normalize the text.
-Embeddings and Keyword Matching: Uses SentenceTransformer for generating embeddings and CountVectorizer for keyword-based similarity.
-Cosine Similarity Scoring: Computes a similarity score between the job description and each resume.
-Parallelized Processing: Processes resumes in parallel to enhance performance.
-API Interface: A Flask API endpoint to upload resumes and job descriptions for ranking.
+## Features
 
-Tech Stack
-Programming Language: Python
-Libraries:
-Flask: For API development.
-pdfplumber and python-docx: For extracting text from PDF and DOCX files.
-spacy, nltk: For NLP preprocessing.
-sentence-transformers: For generating sentence embeddings.
-sklearn: For CountVectorizer and cosine_similarity.
-multiprocessing: For parallel processing.
+- **Text Extraction**: Supports extracting text from PDF, DOC, and DOCX resumes.
+- **NLP Preprocessing**: Includes lemmatization, stopword removal, and other advanced text preprocessing techniques.
+- **Embeddings and Keyword Matching**: Combines `SentenceTransformer` for embeddings and `CountVectorizer` for keyword-based similarity scoring.
+- **Cosine Similarity Scoring**: Calculates similarity between job descriptions and resumes using cosine similarity.
+- **API Interface**: Allows uploading of resumes and job descriptions via a Flask API.
+- **Parallelized Processing**: Efficiently processes multiple resumes in parallel.
 
-Model:
-SentenceTransformer (all-mpnet-base-v2): For generating high-quality embeddings.
-Groq API (optional): For summarization of resumes and job descriptions using large language models.
+## Tech Stack
+
+- **Programming Language**: Python
+- **Libraries**:
+  - `Flask`: For building the API.
+  - `pdfplumber`, `python-docx`: For extracting text from PDF and DOCX files.
+  - `spacy`, `nltk`: For Natural Language Processing tasks like tokenization and lemmatization.
+  - `sentence-transformers`: For generating sentence embeddings.
+  - `scikit-learn (sklearn)`: For `CountVectorizer` and `cosine_similarity`.
+  - `multiprocessing`: For parallelizing resume processing.
+- **Models**:
+  - `SentenceTransformer` (`paraphrase-mpnet-base-v2`): Used for generating high-quality sentence embeddings.
+  - `Groq API` (optional): For summarizing resumes and job descriptions using large language models.
