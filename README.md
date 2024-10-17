@@ -1,5 +1,11 @@
 # Resume Ranking System
 
+## Live Application
+
+You can access the hosted version of the Resume Ranking System here:
+
+[**Resume Ranking System - Live Demo**](https://resume-ranking-system-devang-gawade.streamlit.app/)
+
 ## Overview
 
 The **Resume Ranking System** is an AI-driven tool designed to streamline the resume screening process for recruiters by matching and ranking resumes against a given job description. This tool leverages Natural Language Processing (NLP), embeddings, and cosine similarity to compute how well a resume aligns with the job requirements, returning a match score for each resume.
