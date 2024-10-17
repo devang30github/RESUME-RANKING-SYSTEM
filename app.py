@@ -12,7 +12,7 @@ from langchain_groq import ChatGroq
 from dotenv import load_dotenv
 import string
 from nltk.corpus import stopwords
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer,CountVectorizer
 from concurrent.futures import ThreadPoolExecutor
 
 # Download NLTK Data
@@ -25,7 +25,7 @@ groq_api_key = os.getenv("GROQ_API_KEY")
 
 # Initialize models
 summarizer_model = ChatGroq(model="llama-3.1-70b-versatile", groq_api_key=groq_api_key)
-sentence_transformer_model = SentenceTransformer('paraphrase-mpnet-base-v2')
+sentence_transformer_model = SentenceTransformer('all-mpnet-base-v2')
 nlp = spacy.load("en_core_web_sm")
 
 # Preprocessing function
@@ -66,15 +66,17 @@ def extract_text_from_file(file):
 
 def summarize_job_description_with_groq(job_description):
     prompt = f"""
-    Summarize the following job description into these sections:
-    - Key Required Skills (specific tools, languages, and frameworks)
-    - Years of Experience Required
-    - Responsibilities
-    - Educational Background
-    - Certifications (if needed)
-    - Job Location and Remote Work Options
-    
-    Job Description: {job_description}
+    Summarize the following job description in a structured format. Extract key points only, focusing on specific technical and soft skills. The format should be:
+
+    - Primary Responsibilities: What are the main tasks and duties of the role?
+    - Required Technical Skills: List all programming languages, frameworks, tools, and technologies required for this role.
+    - Years of Experience: How many years of experience are required?
+    - Preferred Qualifications: What are the preferred qualifications or nice-to-haves?
+    - Educational Requirements: What degree(s) or certifications are needed or preferred?
+    - Job Location and Remote Work Options: Is the job on-site, remote, or hybrid?
+
+    Job Description:
+    {job_description}
     """
     try:
         response = summarizer_model.invoke(input=prompt)
@@ -86,15 +88,17 @@ def summarize_job_description_with_groq(job_description):
 # Summarize resume using Groq
 def summarize_resume_with_groq(resume_text):
     prompt = f"""
-    Summarize the following resume into these sections:
-    - Key Technical Skills (specific tools, languages, and frameworks)
-    - Work Experience (total years, responsibilities, and impact)
-    - Educational Background
-    - Certifications (related to the job)
-    - Relevant Projects or Contributions
-    
 
-    resume : {resume_text}
+    Summarize the following resume in a detailed yet concise format. Extract key points that are relevant to the Machine Learning Engineer role. The format should be:
+
+    - Core Technical Skills: Specific tools, languages, and frameworks the candidate has experience with (include proficiency level if possible).
+    - Work Experience: Briefly list previous roles, responsibilities, and quantifiable impact (e.g., model accuracy improvement, pipeline optimization, etc.).
+    - Education: Highest degree earned and any relevant coursework or specializations.
+    - Certifications and Relevant Achievements: Include any certifications, competitions, research papers, or awards relevant to machine learning or AI.
+    - Projects: Highlight one or two relevant projects, detailing the tools used and the impact of the project.
+
+    Resume:
+    {resume_text}
     """
     try:
         response = summarizer_model.invoke(input=prompt)
@@ -118,14 +122,20 @@ def rank_resumes_separately(resume_texts, job_description, transformer_model):
     resume_embeddings = batch_get_embeddings(resume_summaries, transformer_model)
 
     scores = []
-    vectorizer = TfidfVectorizer()
+    vectorizer=CountVectorizer(ngram_range=(1, 2))
+    vectorizer.fit([lemmatized_job_description])
+    vectors_job = vectorizer.transform([lemmatized_job_description])
     for i, (resume_text, file_name) in enumerate(resume_texts):
+        # Cosine similarity between summarized job description and resume embeddings
+        similarity_score_embedding = cosine_similarity(job_desc_embs, resume_embeddings[i].reshape(1, -1)).mean()
+        
+        
         lemmatized_resume = advanced_preprocessing(resume_text)
-        vectors = vectorizer.fit_transform([lemmatized_job_description, lemmatized_resume])
-        similarity_score_keywords = cosine_similarity(vectors[0:1], vectors[1:2])
+        vectors_resume = vectorizer.transform([ lemmatized_resume])
+        similarity_score_keywords = cosine_similarity(vectors_job, vectors_resume)
         keyword_boost = similarity_score_keywords[0][0] * 0.2
         
-        similarity_score_embedding = cosine_similarity(job_desc_embs, resume_embeddings[i].reshape(1, -1)).mean()
+        
 
         total_score = similarity_score_embedding + keyword_boost
         total_score *= 100
@@ -135,25 +145,7 @@ def rank_resumes_separately(resume_texts, job_description, transformer_model):
     return sorted(scores, key=lambda x: x[1], reverse=True)
 
 # Streamlit UI starts here
-st.title("📄 Resume Screening Tool")
-
-st.write("Upload resumes and provide a job description to rank them based on job matching criteria.")
-
-job_description = st.text_area("Please paste the job description here", height=300, placeholder="Enter the job requirements")
-
-resumes = st.file_uploader("Upload one or more resumes (PDF, DOCX)", accept_multiple_files=True, type=["pdf", "docx"])
-
-if st.button("Submit"):
-    if job_description and resumes:
-        with st.spinner("Processing..."):
-            resume_texts = [(extract_text_from_file(resume), resume.name) for resume in resumes]
-            ranked_resumes = rank_resumes_separately(resume_texts, job_description, sentence_transformer_model)
-
-        st.subheader("Ranked Resumes")
-        for file_name, score in ranked_resumes:
-            st.markdown(f"**{file_name}**: {score:.2f}%")
-    else:
-        st.error("Please provide both a job description and upload resumes.")
+st.set_page_config(page_title="Resume Ranking System", layout="centered")
 
 # Add Custom CSS Styling
 st.markdown('''
@@ -242,3 +234,43 @@ st.markdown('''
         }
     </style>
 ''', unsafe_allow_html=True)
+
+
+
+st.title("📄 Resume Screening Tool")
+
+st.write("Upload resumes and provide a job description to rank them based on job matching criteria.")
+
+job_description = st.text_area("Please paste the job description here", height=300, placeholder="Enter the job requirements")
+
+resumes = st.file_uploader("Upload one or more resumes (PDF, DOCX)", accept_multiple_files=True, type=["pdf", "docx"])
+
+
+# Progress bar
+progress_bar = st.empty()
+status_text = st.empty()
+
+if st.button("Submit"):
+    if job_description and resumes:
+        with st.spinner("Processing... This may take a few moments."):
+            progress_bar.progress(10)
+            status_text.text("Starting the processing...")
+            time.sleep(1)
+            progress_bar.progress(40)
+            status_text.text("Extracting and analyzing resumes...")
+
+            resume_texts = [(extract_text_from_file(resume), resume.name) for resume in resumes]
+            ranked_resumes = rank_resumes_separately(resume_texts, job_description, sentence_transformer_model)
+
+        st.subheader("Ranked Resumes")
+        for file_name, score in ranked_resumes:
+            st.markdown(f"""
+            <div class="ranked-resume">
+                <h4>File: {file_name}</h4>
+                <p><strong>Score:</strong> {score:.2f}%</p>
+            </div>
+            """, unsafe_allow_html=True)
+            #**{file_name}**: {score:.2f}%")
+    else:
+        st.error("Please provide both a job description and upload resumes.")
+
