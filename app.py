@@ -133,7 +133,7 @@ def rank_resumes_separately(resume_texts, job_description, transformer_model):
         lemmatized_resume = advanced_preprocessing(resume_text)
         vectors_resume = vectorizer.transform([ lemmatized_resume])
         similarity_score_keywords = cosine_similarity(vectors_job, vectors_resume)
-        keyword_boost = similarity_score_keywords[0][0] * 0.2
+        keyword_boost = similarity_score_keywords[0][0] * 0.3
         
         
 
@@ -261,6 +261,7 @@ if st.button("Submit"):
 
             resume_texts = [(extract_text_from_file(resume), resume.name) for resume in resumes]
             ranked_resumes = rank_resumes_separately(resume_texts, job_description, sentence_transformer_model)
+            time.sleep(2)
             progress_bar.progress(70)
             status_text.text("Ranking resumes based on job description...")
 
