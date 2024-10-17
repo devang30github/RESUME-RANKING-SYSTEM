@@ -31,5 +31,5 @@ The system uses:
   - `scikit-learn (sklearn)`: For `CountVectorizer` and `cosine_similarity`.
   - `multiprocessing`: For parallelizing resume processing.
 - **Models**:
-  - `SentenceTransformer` (`paraphrase-mpnet-base-v2`): Used for generating high-quality sentence embeddings.
+  - `SentenceTransformer` (`all-mpnet-base-v2`): Used for generating high-quality sentence embeddings.
   - `Groq API` (optional): For summarizing resumes and job descriptions using large language models.
