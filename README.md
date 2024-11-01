@@ -42,20 +42,24 @@ The system uses:
 
 ## Installation
 
--**Open your terminal and clone the repository** : -`git clone https://github.com/devang30github/resume-ranking-system.git` -`cd resume-ranking-system`
+**Open your terminal and clone the repository** :
+`git clone https://github.com/devang30github/resume-ranking-system.git`
+`cd resume-ranking-system`
 
 -**Set Up a Virtual Environment**:
--It’s best practice to use a virtual environment to manage dependencies:
--python -m venv myvenv -`venv\Scripts\activate`
+It’s best practice to use a virtual environment to manage dependencies:
+python -m venv myvenv -`venv\Scripts\activate`
 
--**Install Dependencies**:
--Install the required packages using pip: -`pip install -r requirements.txt`
+**Install Dependencies**:
+Install the required packages using pip:
+`pip install -r requirements.txt`
 
--**Set Up Environment Variables**:
--Create a .env file in the root directory to store your Groq API key. This file will be used by the app to authenticate with the Groq API.
--Open .env in a text editor and add the following line:
--GROQ_API_KEY=your_groq_api_key
--Replace your_groq_api_key with your actual API key.
+**Set Up Environment Variables**:
+Create a .env file in the root directory to store your Groq API key. This file will be used by the app to authenticate with the Groq API.
+Open .env in a text editor and add the following line:
+GROQ_API_KEY=your_groq_api_key
+Replace your_groq_api_key with your actual API key.
 
--**Run the Flask Application**:
--Start the Flask app on localhost: -`python flask_app.py`
+**Run the Flask Application**:
+Start the Flask app on localhost:
+`python flask_app.py`
