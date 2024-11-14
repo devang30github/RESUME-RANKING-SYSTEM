@@ -223,6 +223,7 @@ st.markdown('''
 
         .ranked-resume p {
             font-size: 1.1em;
+            color:black;
         }
 
         /* Processing loader styling */
