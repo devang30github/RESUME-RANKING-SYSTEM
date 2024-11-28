@@ -68,3 +68,5 @@ The system uses:
 - **Run the Flask Application**:
   - Start the Flask app on localhost:
   - `python flask_app.py`
+
+Thank You
