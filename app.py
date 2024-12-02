@@ -26,7 +26,14 @@ groq_api_key = os.getenv("GROQ_API_KEY")
 # Initialize models
 summarizer_model = ChatGroq(model="llama-3.1-70b-versatile", groq_api_key=groq_api_key)
 sentence_transformer_model = SentenceTransformer('all-mpnet-base-v2')
-nlp = spacy.load("en_core_web_sm")
+
+# Check if the model is available
+try:
+    nlp = spacy.load("en_core_web_sm")
+except OSError:
+    os.system("python -m spacy download en_core_web_sm")
+    nlp = spacy.load("en_core_web_sm")
+
 
 # Preprocessing function
 def preprocess_text(text):
